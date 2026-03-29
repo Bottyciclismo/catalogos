@@ -356,9 +356,17 @@ function startInertia(){
   if(S.raf)cancelAnimationFrame(S.raf);
   function tick(){
     S.dv*=0.88;
-    if(Math.abs(S.dv)<0.06){snapCar();return}
     S.angle+=S.dv;
     applyCarT();updAllCards();calcFront();
+    /* Si una tarjeta pasa por el centro y ya va despacio, se clava ahí */
+    const n=S.cats.length;
+    if(n>1){
+      const step=360/n;
+      let a=(-S.angle%360+360)%360;
+      const nearest=Math.round(a/step)*step;
+      if(Math.abs(a-nearest)<step*0.12&&Math.abs(S.dv)<1.5){snapCar();return}
+    }
+    if(Math.abs(S.dv)<0.03){snapCar();return}
     S.raf=requestAnimationFrame(tick);
   }
   tick();
